@@ -59,9 +59,44 @@ local function_declaration_snippet = function(node)
   return { result = snippet, type = "luasnip" }
 end
 
+local assignment_statement_snippet = function(node)
+  local children = ts_utils.get_named_children(node)
+  for _, v in ipairs(children) do
+    if v:type() == "expression_list" then
+      for _, v2 in ipairs(ts_utils.get_named_children(v)) do
+        P(v2:type())
+        if v2:type() == "function_definition" then
+          return function_declaration_snippet(v2)
+        end
+      end
+    end
+  end
+end
+
+local variable_declaration_snippet = function(node)
+  local children = ts_utils.get_named_children(node)
+  for _, v in ipairs(children) do
+    if v:type() == "assignment_statement" then
+      return assignment_statement_snippet(v)
+    end
+  end
+end
+
 M.function_declaration = function(node, options)
   if options.luasnip_enabled then
     return function_declaration_snippet(node)
+  end
+end
+
+M.variable_declaration = function(node, options)
+  if options.luasnip_enabled then
+    return variable_declaration_snippet(node)
+  end
+end
+
+M.assignment_statement = function(node, options)
+  if options.luasnip_enabled then
+    return assignment_statement_snippet(node)
   end
 end
 
