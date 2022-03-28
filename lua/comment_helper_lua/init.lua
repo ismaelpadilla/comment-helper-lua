@@ -52,7 +52,6 @@ local function_declaration_snippet = function(node)
   end
 
   snippet_text = table.concat(snippet_text, "\n")
-  P(snippet_text)
 
   local snippet = s("", fmt(snippet_text, snippet_params))
 
@@ -64,7 +63,6 @@ local assignment_statement_snippet = function(node)
   for _, v in ipairs(children) do
     if v:type() == "expression_list" then
       for _, v2 in ipairs(ts_utils.get_named_children(v)) do
-        P(v2:type())
         if v2:type() == "function_definition" then
           return function_declaration_snippet(v2)
         end
