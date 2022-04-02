@@ -2,6 +2,23 @@ local ts_utils = require "nvim-treesitter.ts_utils"
 
 local M = {}
 
+local function find_descendant(node, predicate)
+  if node == nil then
+    return nil
+  end
+
+  for _, v in ipairs(ts_utils.get_named_children(node)) do
+    if predicate(v) then
+      return v
+    else
+      local recurse = find_descendant(v, predicate)
+      if recurse ~= nil then
+        return recurse
+      end
+    end
+  end
+end
+
 local function_declaration_snippet = function(node)
   -- require luasnip
   local ls = require "luasnip"
@@ -24,16 +41,11 @@ local function_declaration_snippet = function(node)
     if v:type() == "parameters" then
       parameters = ts_utils.get_named_children(v)
     end
-
-    -- does the function return something?
-    if v:type() == "block" then
-      for _, v2 in ipairs(ts_utils.get_named_children(v)) do
-        if v2:type() == "return_statement" then
-          returns_something = true
-        end
-      end
-    end
   end
+
+  returns_something = find_descendant(node, function(n)
+    return n:type() == "return_statement"
+  end) ~= nil
 
   -- parse parameters
   for _, v in ipairs(parameters) do
