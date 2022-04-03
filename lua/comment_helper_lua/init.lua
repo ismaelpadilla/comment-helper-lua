@@ -26,7 +26,7 @@ local function_declaration_snippet = function(node)
   local fmt = require("luasnip.extras.fmt").fmt
   local i = ls.insert_node
 
-  local returns_something = false
+  local returns_something
 
   -- basic description
   local snippet_text = { "--- {}" }
